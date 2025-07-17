@@ -14,7 +14,248 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      alerts: {
+        Row: {
+          alert_type: string
+          created_at: string
+          id: string
+          is_active: boolean | null
+          last_triggered_at: string | null
+          loan_id: string | null
+          threshold_value: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          alert_type: string
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          last_triggered_at?: string | null
+          loan_id?: string | null
+          threshold_value?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          alert_type?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          last_triggered_at?: string | null
+          loan_id?: string | null
+          threshold_value?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "alerts_loan_id_fkey"
+            columns: ["loan_id"]
+            isOneToOne: false
+            referencedRelation: "loans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      exchanges: {
+        Row: {
+          created_at: string
+          display_name: string
+          icon_url: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          display_name: string
+          icon_url?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+        }
+        Update: {
+          created_at?: string
+          display_name?: string
+          icon_url?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+        }
+        Relationships: []
+      }
+      loan_history: {
+        Row: {
+          borrowed_value_usd: number
+          collateral_value_usd: number
+          created_at: string
+          health_ratio: number
+          id: string
+          loan_id: string
+          recorded_at: string
+        }
+        Insert: {
+          borrowed_value_usd: number
+          collateral_value_usd: number
+          created_at?: string
+          health_ratio: number
+          id?: string
+          loan_id: string
+          recorded_at?: string
+        }
+        Update: {
+          borrowed_value_usd?: number
+          collateral_value_usd?: number
+          created_at?: string
+          health_ratio?: number
+          id?: string
+          loan_id?: string
+          recorded_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "loan_history_loan_id_fkey"
+            columns: ["loan_id"]
+            isOneToOne: false
+            referencedRelation: "loans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      loans: {
+        Row: {
+          borrowed_amount: number
+          borrowed_asset: string
+          borrowed_value_usd: number
+          collateral_amount: number
+          collateral_asset: string
+          collateral_value_usd: number
+          created_at: string
+          exchange_id: string
+          external_loan_id: string
+          health_ratio: number
+          id: string
+          liquidation_threshold: number
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          borrowed_amount: number
+          borrowed_asset: string
+          borrowed_value_usd: number
+          collateral_amount: number
+          collateral_asset: string
+          collateral_value_usd: number
+          created_at?: string
+          exchange_id: string
+          external_loan_id: string
+          health_ratio: number
+          id?: string
+          liquidation_threshold: number
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          borrowed_amount?: number
+          borrowed_asset?: string
+          borrowed_value_usd?: number
+          collateral_amount?: number
+          collateral_asset?: string
+          collateral_value_usd?: number
+          created_at?: string
+          exchange_id?: string
+          external_loan_id?: string
+          health_ratio?: number
+          id?: string
+          liquidation_threshold?: number
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "loans_exchange_id_fkey"
+            columns: ["exchange_id"]
+            isOneToOne: false
+            referencedRelation: "exchanges"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          email: string | null
+          full_name: string | null
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_exchange_connections: {
+        Row: {
+          api_key_encrypted: string
+          api_secret_encrypted: string
+          created_at: string
+          exchange_id: string
+          id: string
+          is_active: boolean | null
+          last_sync_at: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          api_key_encrypted: string
+          api_secret_encrypted: string
+          created_at?: string
+          exchange_id: string
+          id?: string
+          is_active?: boolean | null
+          last_sync_at?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          api_key_encrypted?: string
+          api_secret_encrypted?: string
+          created_at?: string
+          exchange_id?: string
+          id?: string
+          is_active?: boolean | null
+          last_sync_at?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_exchange_connections_exchange_id_fkey"
+            columns: ["exchange_id"]
+            isOneToOne: false
+            referencedRelation: "exchanges"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
