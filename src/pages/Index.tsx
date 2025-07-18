@@ -5,34 +5,23 @@ import { Badge } from "@/components/ui/badge";
 import { CheckCircle, TrendingUp, Shield, BarChart3, Users, Zap } from "lucide-react";
 import { LoginForm } from "@/components/ui/login-form";
 import Dashboard from "./Dashboard";
-
 const Index = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
-
   if (isAuthenticated) {
     return <Dashboard />;
   }
-
   if (showLogin) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-muted p-4">
+    return <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-muted p-4">
         <div className="w-full max-w-md">
-          <Button 
-            variant="ghost" 
-            onClick={() => setShowLogin(false)}
-            className="mb-4"
-          >
+          <Button variant="ghost" onClick={() => setShowLogin(false)} className="mb-4">
             ← Voltar
           </Button>
           <LoginForm />
         </div>
-      </div>
-    );
+      </div>;
   }
-
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted">
+  return <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted">
       {/* Header */}
       <header className="container mx-auto px-4 py-6 flex justify-between items-center">
         <div className="flex items-center space-x-2">
@@ -172,13 +161,9 @@ const Index = () => {
             <TrendingUp className="h-6 w-6 text-primary" />
             <span className="font-semibold">Flexix</span>
           </div>
-          <p className="text-muted-foreground">
-            © 2024 Flexix. Todos os direitos reservados.
-          </p>
+          <p className="text-muted-foreground">© 2025 Flexix. Todos os direitos reservados.</p>
         </div>
       </footer>
-    </div>
-  );
+    </div>;
 };
-
 export default Index;
