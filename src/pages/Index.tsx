@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -8,6 +9,7 @@ import Dashboard from "./Dashboard";
 const Index = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
+  const navigate = useNavigate();
   if (isAuthenticated) {
     return <Dashboard />;
   }
@@ -51,7 +53,7 @@ const Index = () => {
           <Button size="lg" onClick={() => setShowLogin(true)}>
             Começar Agora
           </Button>
-          <Button size="lg" variant="outline">
+          <Button size="lg" variant="outline" onClick={() => navigate("/demo")}>
             Ver Demo
           </Button>
         </div>
