@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Navigate, Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import { Navigation } from "@/components/ui/navigation";
 import { DashboardStats } from "@/components/ui/dashboard-stats";
 import { LoanCard } from "@/components/ui/loan-card";
@@ -8,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { RefreshCw, Plus, BarChart3, TrendingUp } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 // Mock data for demonstration
 const mockLoans = [
@@ -93,194 +95,241 @@ const generateHealthData = (period: string) => {
   return data;
 };
 
-export default function Dashboard() {
-  const [activeTab, setActiveTab] = useState("dashboard");
+// Dashboard Overview Component
+function DashboardOverview() {
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const { t } = useLanguage();
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
-    // Simulate API call
     setTimeout(() => {
       setIsRefreshing(false);
     }, 2000);
   };
 
-  const renderContent = () => {
-    switch (activeTab) {
-      case "settings":
-        return <SettingsPanel />;
-      
-      case "loans":
-        return (
-          <div className="space-y-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-3xl font-bold text-foreground mb-2">
-                  Empréstimos Ativos
-                </h2>
-                <p className="text-muted-foreground">
-                  Gerencie e monitore todos os seus empréstimos colateralizados
-                </p>
-              </div>
-              <div className="flex items-center space-x-3">
-                <Button 
-                  variant="outline" 
-                  onClick={handleRefresh}
-                  disabled={isRefreshing}
-                  className="flex items-center space-x-2"
-                >
-                  <RefreshCw className={`w-4 h-4 ${isRefreshing ? "animate-spin" : ""}`} />
-                  <span>Sincronizar</span>
-                </Button>
-                <Button className="bg-gradient-primary">
-                  <Plus className="w-4 h-4 mr-2" />
-                  Nova Conexão
-                </Button>
-              </div>
-            </div>
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-3xl font-bold text-foreground mb-2">
+            {t('dashboard.title')}
+          </h2>
+          <p className="text-muted-foreground">
+            {t('dashboard.subtitle')}
+          </p>
+        </div>
+        <div className="flex items-center space-x-3">
+          <Button 
+            variant="outline" 
+            onClick={handleRefresh}
+            disabled={isRefreshing}
+            className="flex items-center space-x-2"
+          >
+            <RefreshCw className={`w-4 h-4 ${isRefreshing ? "animate-spin" : ""}`} />
+            <span>{t('dashboard.sync')}</span>
+          </Button>
+          <Button className="bg-gradient-primary">
+            <BarChart3 className="w-4 h-4 mr-2" />
+            {t('dashboard.report')}
+          </Button>
+        </div>
+      </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {mockLoans.map((loan, index) => (
-                <LoanCard key={index} {...loan} />
-              ))}
-            </div>
+      <DashboardStats {...mockStats} />
+
+      {/* Health Tracking Chart */}
+      <Card className="bg-card border-border">
+        <CardHeader className="flex flex-row items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <TrendingUp className="w-5 h-5 text-primary" />
+            <CardTitle className="text-foreground">{t('dashboard.health.title')}</CardTitle>
           </div>
-        );
-      
-      default:
-        return (
-          <div className="space-y-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-3xl font-bold text-foreground mb-2">
-                  Dashboard
-                </h2>
-                <p className="text-muted-foreground">
-                  Visão geral dos seus empréstimos e indicadores de saúde
-                </p>
-              </div>
-              <div className="flex items-center space-x-3">
-                <Button 
-                  variant="outline" 
-                  onClick={handleRefresh}
-                  disabled={isRefreshing}
-                  className="flex items-center space-x-2"
-                >
-                  <RefreshCw className={`w-4 h-4 ${isRefreshing ? "animate-spin" : ""}`} />
-                  <span>Sincronizar</span>
-                </Button>
-                <Button className="bg-gradient-primary">
-                  <BarChart3 className="w-4 h-4 mr-2" />
-                  Relatório
-                </Button>
-              </div>
-            </div>
-
-            <DashboardStats {...mockStats} />
-
-            {/* Health Tracking Chart */}
-            <Card className="bg-card border-border">
-              <CardHeader className="flex flex-row items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  <TrendingUp className="w-5 h-5 text-primary" />
-                  <CardTitle className="text-foreground">Acompanhamento da Saúde</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Tabs defaultValue="daily" className="w-full">
+            <TabsList className="grid w-full grid-cols-3 mb-6">
+              <TabsTrigger value="daily">{t('dashboard.health.daily')}</TabsTrigger>
+              <TabsTrigger value="weekly">{t('dashboard.health.weekly')}</TabsTrigger>
+              <TabsTrigger value="monthly">{t('dashboard.health.monthly')}</TabsTrigger>
+            </TabsList>
+            
+            {["daily", "weekly", "monthly"].map((period) => (
+              <TabsContent key={period} value={period} className="space-y-4">
+                <div className="h-80">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={generateHealthData(period)}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                      <XAxis 
+                        dataKey="date" 
+                        stroke="hsl(var(--muted-foreground))"
+                        fontSize={12}
+                      />
+                      <YAxis 
+                        stroke="hsl(var(--muted-foreground))"
+                        fontSize={12}
+                        domain={[1, 3]}
+                      />
+                      <Tooltip 
+                        contentStyle={{
+                          backgroundColor: "hsl(var(--popover))",
+                          border: "1px solid hsl(var(--border))",
+                          borderRadius: "8px",
+                          color: "hsl(var(--popover-foreground))"
+                        }}
+                        formatter={(value: number, name: string) => [
+                          name === 'health' ? value.toFixed(2) : `$${value.toLocaleString()}`,
+                          name === 'health' ? t('dashboard.health.average') : name === 'collateral' ? t('loan.collateral') : t('loan.borrowed')
+                        ]}
+                      />
+                      <Line 
+                        type="monotone" 
+                        dataKey="health" 
+                        stroke="hsl(var(--primary))" 
+                        strokeWidth={3}
+                        dot={{ fill: "hsl(var(--primary))", strokeWidth: 2, r: 4 }}
+                        name="health"
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
                 </div>
-              </CardHeader>
-              <CardContent>
-                <Tabs defaultValue="daily" className="w-full">
-                  <TabsList className="grid w-full grid-cols-3 mb-6">
-                    <TabsTrigger value="daily">Diário</TabsTrigger>
-                    <TabsTrigger value="weekly">Semanal</TabsTrigger>
-                    <TabsTrigger value="monthly">Mensal</TabsTrigger>
-                  </TabsList>
-                  
-                  {["daily", "weekly", "monthly"].map((period) => (
-                    <TabsContent key={period} value={period} className="space-y-4">
-                      <div className="h-80">
-                        <ResponsiveContainer width="100%" height="100%">
-                          <LineChart data={generateHealthData(period)}>
-                            <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                            <XAxis 
-                              dataKey="date" 
-                              stroke="hsl(var(--muted-foreground))"
-                              fontSize={12}
-                            />
-                            <YAxis 
-                              stroke="hsl(var(--muted-foreground))"
-                              fontSize={12}
-                              domain={[1, 3]}
-                            />
-                            <Tooltip 
-                              contentStyle={{
-                                backgroundColor: "hsl(var(--popover))",
-                                border: "1px solid hsl(var(--border))",
-                                borderRadius: "8px",
-                                color: "hsl(var(--popover-foreground))"
-                              }}
-                              formatter={(value: number, name: string) => [
-                                name === 'health' ? value.toFixed(2) : `$${value.toLocaleString()}`,
-                                name === 'health' ? 'Saúde' : name === 'collateral' ? 'Garantia' : 'Dívida'
-                              ]}
-                            />
-                            <Line 
-                              type="monotone" 
-                              dataKey="health" 
-                              stroke="hsl(var(--primary))" 
-                              strokeWidth={3}
-                              dot={{ fill: "hsl(var(--primary))", strokeWidth: 2, r: 4 }}
-                              name="health"
-                            />
-                          </LineChart>
-                        </ResponsiveContainer>
-                      </div>
-                      
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 border-t border-border">
-                        <div className="text-center">
-                          <p className="text-sm text-muted-foreground">Saúde Média</p>
-                          <p className="text-2xl font-bold text-primary">
-                            {(generateHealthData(period).reduce((acc, item) => acc + item.health, 0) / generateHealthData(period).length).toFixed(2)}
-                          </p>
-                        </div>
-                        <div className="text-center">
-                          <p className="text-sm text-muted-foreground">Maior Saúde</p>
-                          <p className="text-2xl font-bold text-success">
-                            {Math.max(...generateHealthData(period).map(item => item.health)).toFixed(2)}
-                          </p>
-                        </div>
-                        <div className="text-center">
-                          <p className="text-sm text-muted-foreground">Menor Saúde</p>
-                          <p className="text-2xl font-bold text-warning">
-                            {Math.min(...generateHealthData(period).map(item => item.health)).toFixed(2)}
-                          </p>
-                        </div>
-                      </div>
-                    </TabsContent>
-                  ))}
-                </Tabs>
-              </CardContent>
-            </Card>
+                
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 border-t border-border">
+                  <div className="text-center">
+                    <p className="text-sm text-muted-foreground">{t('dashboard.health.average')}</p>
+                    <p className="text-2xl font-bold text-primary">
+                      {(generateHealthData(period).reduce((acc, item) => acc + item.health, 0) / generateHealthData(period).length).toFixed(2)}
+                    </p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-sm text-muted-foreground">{t('dashboard.health.highest')}</p>
+                    <p className="text-2xl font-bold text-success">
+                      {Math.max(...generateHealthData(period).map(item => item.health)).toFixed(2)}
+                    </p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-sm text-muted-foreground">{t('dashboard.health.lowest')}</p>
+                    <p className="text-2xl font-bold text-warning">
+                      {Math.min(...generateHealthData(period).map(item => item.health)).toFixed(2)}
+                    </p>
+                  </div>
+                </div>
+              </TabsContent>
+            ))}
+          </Tabs>
+        </CardContent>
+      </Card>
 
-            <div className="space-y-4">
-              <h3 className="text-xl font-semibold text-foreground">
-                Empréstimos por Exchange
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {mockLoans.map((loan, index) => (
-                  <LoanCard key={index} {...loan} />
-                ))}
-              </div>
-            </div>
-          </div>
-        );
+      <div className="space-y-4">
+        <h3 className="text-xl font-semibold text-foreground">
+          {t('dashboard.loans.by.exchange')}
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {mockLoans.map((loan, index) => (
+            <LoanCard key={index} {...loan} />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Loans Page Component
+function LoansPage() {
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const { t } = useLanguage();
+
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    setTimeout(() => {
+      setIsRefreshing(false);
+    }, 2000);
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-3xl font-bold text-foreground mb-2">
+            {t('loans.title')}
+          </h2>
+          <p className="text-muted-foreground">
+            {t('loans.subtitle')}
+          </p>
+        </div>
+        <div className="flex items-center space-x-3">
+          <Button 
+            variant="outline" 
+            onClick={handleRefresh}
+            disabled={isRefreshing}
+            className="flex items-center space-x-2"
+          >
+            <RefreshCw className={`w-4 h-4 ${isRefreshing ? "animate-spin" : ""}`} />
+            <span>{t('dashboard.sync')}</span>
+          </Button>
+          <Button className="bg-gradient-primary">
+            <Plus className="w-4 h-4 mr-2" />
+            {t('loans.new.connection')}
+          </Button>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {mockLoans.map((loan, index) => (
+          <LoanCard key={index} {...loan} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// Settings Page Component
+function SettingsPage() {
+  return <SettingsPanel />;
+}
+
+export default function Dashboard() {
+  const navigate = useNavigate();
+  const location = useLocation();
+  
+  // Simulate authentication check
+  const isAuthenticated = true; // This should come from auth context
+  
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+
+  // Determine active tab from current route
+  const getActiveTab = () => {
+    const path = location.pathname;
+    if (path.includes('/emprestimos')) return 'loans';
+    if (path.includes('/configuracoes')) return 'settings';
+    return 'dashboard';
+  };
+
+  const handleTabChange = (tab: string) => {
+    switch (tab) {
+      case 'loans':
+        navigate('/dashboard/emprestimos');
+        break;
+      case 'settings':
+        navigate('/dashboard/configuracoes');
+        break;
+      default:
+        navigate('/dashboard');
+        break;
     }
   };
 
   return (
     <div className="min-h-screen bg-background">
-      <Navigation activeTab={activeTab} onTabChange={setActiveTab} />
+      <Navigation activeTab={getActiveTab()} onTabChange={handleTabChange} />
       
       <main className="container mx-auto px-6 py-8">
-        {renderContent()}
+        <Routes>
+          <Route path="/" element={<DashboardOverview />} />
+          <Route path="/emprestimos" element={<LoansPage />} />
+          <Route path="/configuracoes" element={<SettingsPage />} />
+        </Routes>
       </main>
     </div>
   );

@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { LanguageSelector } from "@/components/ui/language-selector";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { 
   Shield, 
   BarChart3, 
@@ -19,12 +21,13 @@ interface NavigationProps {
 }
 
 export function Navigation({ activeTab, onTabChange }: NavigationProps) {
+  const { t } = useLanguage();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const navItems = [
-    { id: "dashboard", label: "Dashboard", icon: BarChart3 },
-    { id: "loans", label: "Empréstimos", icon: Wallet },
-    { id: "settings", label: "Configurações", icon: Settings },
+    { id: "dashboard", label: t('nav.dashboard'), icon: BarChart3 },
+    { id: "loans", label: t('nav.loans'), icon: Wallet },
+    { id: "settings", label: t('nav.settings'), icon: Settings },
   ];
 
   return (
@@ -37,7 +40,7 @@ export function Navigation({ activeTab, onTabChange }: NavigationProps) {
               <Shield className="w-5 h-5 text-primary-foreground" />
             </div>
             <span className="text-xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-              Flexix
+              {t('landing.title')}
             </span>
           </div>
           
@@ -61,6 +64,7 @@ export function Navigation({ activeTab, onTabChange }: NavigationProps) {
         </div>
 
         <div className="flex items-center space-x-4">
+          <LanguageSelector />
           <Button variant="ghost" size="sm" className="relative">
             <Bell className="w-4 h-4" />
             <Badge className="absolute -top-1 -right-1 h-4 w-4 p-0 text-xs bg-danger">

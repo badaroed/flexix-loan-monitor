@@ -2,14 +2,12 @@ import { useState } from "react";
 import { Navigation } from "@/components/ui/navigation";
 import { DashboardStats } from "@/components/ui/dashboard-stats";
 import { LoanCard } from "@/components/ui/loan-card";
+import { SettingsPanel } from "@/components/ui/settings-panel";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
-import { RefreshCw, Plus, BarChart3, TrendingUp, ArrowLeft } from "lucide-react";
-import { useNavigate } from "react-router-dom";
-import { Badge } from "@/components/ui/badge";
-import { useLanguage } from "@/contexts/LanguageContext";
+import { RefreshCw, Plus, BarChart3, TrendingUp } from "lucide-react";
 
 // Mock data for demonstration
 const mockLoans = [
@@ -95,11 +93,9 @@ const generateHealthData = (period: string) => {
   return data;
 };
 
-export default function Demo() {
+export default function Dashboard() {
   const [activeTab, setActiveTab] = useState("dashboard");
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const navigate = useNavigate();
-  const { t } = useLanguage();
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
@@ -112,19 +108,7 @@ export default function Demo() {
   const renderContent = () => {
     switch (activeTab) {
       case "settings":
-        return (
-          <div className="space-y-6">
-            <div className="text-center py-20">
-              <h2 className="text-2xl font-bold mb-4">{t('demo.settings.title')}</h2>
-              <p className="text-muted-foreground">
-                {t('demo.settings.description')}
-              </p>
-              <Badge variant="secondary" className="mt-4">
-                {t('demo.mode')}
-              </Badge>
-            </div>
-          </div>
-        );
+        return <SettingsPanel />;
       
       case "loans":
         return (
@@ -132,10 +116,10 @@ export default function Demo() {
             <div className="flex items-center justify-between">
               <div>
                 <h2 className="text-3xl font-bold text-foreground mb-2">
-                  {t('loans.title')}
+                  Empréstimos Ativos
                 </h2>
                 <p className="text-muted-foreground">
-                  {t('loans.subtitle')}
+                  Gerencie e monitore todos os seus empréstimos colateralizados
                 </p>
               </div>
               <div className="flex items-center space-x-3">
@@ -146,11 +130,11 @@ export default function Demo() {
                   className="flex items-center space-x-2"
                 >
                   <RefreshCw className={`w-4 h-4 ${isRefreshing ? "animate-spin" : ""}`} />
-                  <span>{t('dashboard.sync')}</span>
+                  <span>Sincronizar</span>
                 </Button>
                 <Button className="bg-gradient-primary">
                   <Plus className="w-4 h-4 mr-2" />
-                  {t('loans.new.connection')}
+                  Nova Conexão
                 </Button>
               </div>
             </div>
@@ -169,10 +153,10 @@ export default function Demo() {
             <div className="flex items-center justify-between">
               <div>
                 <h2 className="text-3xl font-bold text-foreground mb-2">
-                  {t('dashboard.title')}
+                  Dashboard
                 </h2>
                 <p className="text-muted-foreground">
-                  {t('dashboard.subtitle')}
+                  Visão geral dos seus empréstimos e indicadores de saúde
                 </p>
               </div>
               <div className="flex items-center space-x-3">
@@ -183,11 +167,11 @@ export default function Demo() {
                   className="flex items-center space-x-2"
                 >
                   <RefreshCw className={`w-4 h-4 ${isRefreshing ? "animate-spin" : ""}`} />
-                  <span>{t('dashboard.sync')}</span>
+                  <span>Sincronizar</span>
                 </Button>
                 <Button className="bg-gradient-primary">
                   <BarChart3 className="w-4 h-4 mr-2" />
-                  {t('dashboard.report')}
+                  Relatório
                 </Button>
               </div>
             </div>
@@ -196,19 +180,19 @@ export default function Demo() {
 
             {/* Health Tracking Chart */}
             <Card className="bg-card border-border">
-                <CardHeader className="flex flex-row items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <TrendingUp className="w-5 h-5 text-primary" />
-                    <CardTitle className="text-foreground">{t('dashboard.health.title')}</CardTitle>
-                  </div>
-                </CardHeader>
+              <CardHeader className="flex flex-row items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <TrendingUp className="w-5 h-5 text-primary" />
+                  <CardTitle className="text-foreground">Acompanhamento da Saúde</CardTitle>
+                </div>
+              </CardHeader>
               <CardContent>
                 <Tabs defaultValue="daily" className="w-full">
-                    <TabsList className="grid w-full grid-cols-3 mb-6">
-                      <TabsTrigger value="daily">{t('dashboard.health.daily')}</TabsTrigger>
-                      <TabsTrigger value="weekly">{t('dashboard.health.weekly')}</TabsTrigger>
-                      <TabsTrigger value="monthly">{t('dashboard.health.monthly')}</TabsTrigger>
-                    </TabsList>
+                  <TabsList className="grid w-full grid-cols-3 mb-6">
+                    <TabsTrigger value="daily">Diário</TabsTrigger>
+                    <TabsTrigger value="weekly">Semanal</TabsTrigger>
+                    <TabsTrigger value="monthly">Mensal</TabsTrigger>
+                  </TabsList>
                   
                   {["daily", "weekly", "monthly"].map((period) => (
                     <TabsContent key={period} value={period} className="space-y-4">
@@ -235,7 +219,7 @@ export default function Demo() {
                               }}
                               formatter={(value: number, name: string) => [
                                 name === 'health' ? value.toFixed(2) : `$${value.toLocaleString()}`,
-                                name === 'health' ? t('dashboard.health.average') : name === 'collateral' ? t('loan.collateral') : t('loan.borrowed')
+                                name === 'health' ? 'Saúde' : name === 'collateral' ? 'Garantia' : 'Dívida'
                               ]}
                             />
                             <Line 
@@ -250,26 +234,26 @@ export default function Demo() {
                         </ResponsiveContainer>
                       </div>
                       
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 border-t border-border">
-                          <div className="text-center">
-                            <p className="text-sm text-muted-foreground">{t('dashboard.health.average')}</p>
-                            <p className="text-2xl font-bold text-primary">
-                              {(generateHealthData(period).reduce((acc, item) => acc + item.health, 0) / generateHealthData(period).length).toFixed(2)}
-                            </p>
-                          </div>
-                          <div className="text-center">
-                            <p className="text-sm text-muted-foreground">{t('dashboard.health.highest')}</p>
-                            <p className="text-2xl font-bold text-success">
-                              {Math.max(...generateHealthData(period).map(item => item.health)).toFixed(2)}
-                            </p>
-                          </div>
-                          <div className="text-center">
-                            <p className="text-sm text-muted-foreground">{t('dashboard.health.lowest')}</p>
-                            <p className="text-2xl font-bold text-warning">
-                              {Math.min(...generateHealthData(period).map(item => item.health)).toFixed(2)}
-                            </p>
-                          </div>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 border-t border-border">
+                        <div className="text-center">
+                          <p className="text-sm text-muted-foreground">Saúde Média</p>
+                          <p className="text-2xl font-bold text-primary">
+                            {(generateHealthData(period).reduce((acc, item) => acc + item.health, 0) / generateHealthData(period).length).toFixed(2)}
+                          </p>
                         </div>
+                        <div className="text-center">
+                          <p className="text-sm text-muted-foreground">Maior Saúde</p>
+                          <p className="text-2xl font-bold text-success">
+                            {Math.max(...generateHealthData(period).map(item => item.health)).toFixed(2)}
+                          </p>
+                        </div>
+                        <div className="text-center">
+                          <p className="text-sm text-muted-foreground">Menor Saúde</p>
+                          <p className="text-2xl font-bold text-warning">
+                            {Math.min(...generateHealthData(period).map(item => item.health)).toFixed(2)}
+                          </p>
+                        </div>
+                      </div>
                     </TabsContent>
                   ))}
                 </Tabs>
@@ -278,7 +262,7 @@ export default function Demo() {
 
             <div className="space-y-4">
               <h3 className="text-xl font-semibold text-foreground">
-                {t('dashboard.loans.by.exchange')}
+                Empréstimos por Exchange
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {mockLoans.map((loan, index) => (
@@ -293,29 +277,6 @@ export default function Demo() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Demo Banner */}
-      <div className="bg-primary/10 border-b border-primary/20 py-3">
-        <div className="container mx-auto px-6 flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <Badge variant="secondary" className="bg-primary text-primary-foreground">
-              {t('demo.mode')}
-            </Badge>
-            <p className="text-sm text-muted-foreground">
-              {t('demo.description')}
-            </p>
-          </div>
-          <Button 
-            variant="outline" 
-            size="sm"
-            onClick={() => navigate("/")}
-            className="flex items-center space-x-2"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            <span>{t('demo.back.home')}</span>
-          </Button>
-        </div>
-      </div>
-
       <Navigation activeTab={activeTab} onTabChange={setActiveTab} />
       
       <main className="container mx-auto px-6 py-8">
